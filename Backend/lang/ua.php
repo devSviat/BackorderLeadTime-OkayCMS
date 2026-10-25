@@ -1,6 +1,6 @@
 <?php
 
-$lang['sviat__backorder_lead_time__menu'] = 'Терміни під замовлення';
+$lang['sviat__backorder_lead_time__menu'] = 'Терміни відправки';
 $lang['sviat__backorder_lead_time__title'] = 'Терміни відправки товарів під замовлення';
 $lang['sviat__backorder_lead_time__default'] = 'Загальний термін';
 $lang['sviat__backorder_lead_time__default_hint'] = 'Діє для брендів без власного терміну. Днів від замовлення до відправки.';
