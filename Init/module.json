@@ -1,0 +1,44 @@
+{
+  "Okay": "4.5.3",
+  "version": "1.0.0",
+  "moduleName": "Терміни поставки під замовлення",
+  "vendor": {
+    "email": "devsviat@proton.me",
+    "site": "https://github.com/devSviat"
+  },
+  "modifications": {
+    "front": [
+      {
+        "file": "product.tpl",
+        "changes": [
+          {
+            "like": "details_boxed__buttons|class=\"vs-buybox__buy\"",
+            "appendAfter": "product_lead.tpl"
+          },
+          {
+            "like": "<link itemprop=\"availability\" href=\"https?://schema.org/OutOfStock\" />",
+            "replace": "schema_availability.tpl"
+          }
+        ]
+      },
+      {
+        "file": "cart_purchases.tpl",
+        "changes": [
+          {
+            "like": "<span class=\"preorder_label\">|<div class=\"vs-stock vs-stock--low\">",
+            "append": "cart_lead.tpl"
+          }
+        ]
+      },
+      {
+        "file": "pop_up_cart.tpl",
+        "changes": [
+          {
+            "like": "<span class=\"preorder_label\">|<div class=\"vs-stock vs-stock--low\">",
+            "append": "cart_lead.tpl"
+          }
+        ]
+      }
+    ]
+  }
+}
