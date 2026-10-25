@@ -18,12 +18,12 @@ class BackorderCountsTest extends TestCase
     public function testOneGroupedQueryForAllBrands(): void
     {
         $counts = $this->counts([
-            (object) ['brand_id' => '1', 'variants' => '1301'],
-            (object) ['brand_id' => '9', 'variants' => '646'],
+            (object) ['brand_id' => '3', 'variants' => '120'],
+            (object) ['brand_id' => '5', 'variants' => '45'],
             (object) ['brand_id' => '0', 'variants' => '4'],
         ]);
 
-        $this->assertSame([1 => 1301, 9 => 646, 0 => 4], $counts->variantsByBrand());
+        $this->assertSame([3 => 120, 5 => 45, 0 => 4], $counts->variantsByBrand());
         $this->assertCount(1, $this->queries);
 
         $sql = str_replace('`', '', preg_replace('/\s+/', ' ', $this->queries[0]));
