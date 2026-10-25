@@ -1,6 +1,6 @@
 <?php
 
-$lang['sviat__backorder_lead_time__menu'] = 'Backorder lead times';
+$lang['sviat__backorder_lead_time__menu'] = 'Shipping lead times';
 $lang['sviat__backorder_lead_time__title'] = 'Shipping lead times for backorder products';
 $lang['sviat__backorder_lead_time__default'] = 'Default lead time';
 $lang['sviat__backorder_lead_time__default_hint'] = 'Applies to brands without their own lead time. Days from order to shipment.';
