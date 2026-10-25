@@ -2,6 +2,7 @@
 
 namespace Okay\Modules\Sviat\BackorderLeadTime\Helpers;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 
 final readonly class LeadTerm
@@ -14,6 +15,11 @@ final readonly class LeadTerm
         if ($from < 1 || $to < $from || $to > self::MAX_DAYS) {
             throw new InvalidArgumentException("Невалідний термін {$from}–{$to}");
         }
+    }
+
+    public function shipDate(DateTimeImmutable $now): DateTimeImmutable
+    {
+        return $now->modify("+{$this->to} days")->setTime(12, 0);
     }
 
     /** Обидва порожні — терміну немає (null); одне порожнє чи нечислове — помилка. */

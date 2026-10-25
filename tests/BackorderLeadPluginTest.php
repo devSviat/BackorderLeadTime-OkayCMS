@@ -9,6 +9,7 @@ use Okay\Core\FrontTranslations;
 use Okay\Core\Settings;
 use Okay\Modules\Sviat\BackorderLeadTime\Entities\BackorderLeadTimesEntity;
 use Okay\Modules\Sviat\BackorderLeadTime\Helpers\BackorderLeadTime;
+use Okay\Modules\Sviat\BackorderLeadTime\Helpers\LeadTimeLabels;
 use Okay\Modules\Sviat\BackorderLeadTime\Helpers\LeadTimeSettings;
 use Okay\Modules\Sviat\BackorderLeadTime\Plugins\BackorderLeadPlugin;
 use PHPUnit\Framework\TestCase;
@@ -74,7 +75,7 @@ class BackorderLeadPluginTest extends TestCase
 
         $plugin = new BackorderLeadPlugin(
             $service,
-            $translations,
+            new LeadTimeLabels($translations),
             new DateTimeImmutable('2026-10-25 09:30', new DateTimeZone('Europe/Kyiv')),
         );
         $template = new class {
