@@ -11,10 +11,11 @@ class FeedExtender implements ExtensionInterface
     {
     }
 
-    /** Фіди читають рядки небуферизованим запитом: терміни брендів вантажимо до циклу, не посеред нього. */
+    /** Фіди читають рядки небуферизованим запитом: терміни й знятих з виробництва вантажимо до циклу, не посеред нього. */
     public function warmUpTerms(mixed $query): mixed
     {
         $this->backorderLeadTime->brandTerms();
+        $this->backorderLeadTime->discontinuedProductIds();
 
         return $query;
     }
@@ -35,6 +36,10 @@ class FeedExtender implements ExtensionInterface
 
     private function applyBackorder(array $data, object $product): array
     {
+        if (isset($product->product_id) && isset($this->backorderLeadTime->discontinuedProductIds()[(int) $product->product_id])) {
+            return $data;
+        }
+
         $backorder = $this->backorderLeadTime->forItem(
             isset($product->brand_id) ? (int) $product->brand_id : null,
             $product->stock ?? null,

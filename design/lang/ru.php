@@ -2,6 +2,7 @@
 
 $lang['sviat__backorder_lead_time__label'] = 'Backorder';
 $lang['sviat__backorder_lead_time__ships_in'] = 'ships in %d–%d %s, estimated by %s';
+$lang['sviat__backorder_lead_time__ships_in_exact'] = 'ships in %d %s, estimated by %s';
 $lang['sviat__backorder_lead_time__day_1'] = 'day';
 // Порожнє: модифікатор plural тоді бере правило однина/множина, без форми для 2–4.
 $lang['sviat__backorder_lead_time__day_2'] = '';

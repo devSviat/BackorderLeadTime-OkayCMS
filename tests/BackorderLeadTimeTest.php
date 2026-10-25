@@ -77,6 +77,20 @@ class BackorderLeadTimeTest extends TestCase
         );
     }
 
+    public function testInvalidBrandRowFallsBackToDefault(): void
+    {
+        $service = $this->service(
+            ['default_from' => 7, 'default_to' => 14],
+            [1 => [0, 5], 2 => [10, 5], 3 => [300, 400], 4 => [21, 28]],
+        );
+
+        foreach ([1, 2, 3] as $brandId) {
+            $this->assertEquals(new LeadTerm(7, 14), $service->termFor($brandId));
+        }
+        $this->assertEquals(new LeadTerm(21, 28), $service->termFor(4));
+        $this->assertSame([4], array_keys($service->brandTerms()));
+    }
+
     public function testParseRejectsInvalid(): void
     {
         foreach ([['0', '5'], ['5', '3'], ['5', ''], ['366', '400'], ['a', '5']] as [$from, $to]) {

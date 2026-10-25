@@ -2,6 +2,7 @@
 
 $lang['sviat__backorder_lead_time__label'] = 'Під замовлення';
 $lang['sviat__backorder_lead_time__ships_in'] = 'відправка через %d–%d %s, орієнтовно до %s';
+$lang['sviat__backorder_lead_time__ships_in_exact'] = 'відправка через %d %s, орієнтовно до %s';
 $lang['sviat__backorder_lead_time__day_1'] = 'день';
 $lang['sviat__backorder_lead_time__day_2'] = 'дні';
 $lang['sviat__backorder_lead_time__day_5'] = 'днів';

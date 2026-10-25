@@ -5,6 +5,6 @@
 {if $sviat_blt_any && $sviat_blt_has_zero}
 <div class="fn_is_preorder sviat_backorder_lead{if $product->variant->stock > 0} hidden-xs-up{/if}">
     {$sviat_blt_days = $sviat_blt_any.to|plural:$lang->sviat__backorder_lead_time__day_1:$lang->sviat__backorder_lead_time__day_5:$lang->sviat__backorder_lead_time__day_2}
-    <b>{$lang->sviat__backorder_lead_time__label|escape}</b> · {$lang->sviat__backorder_lead_time__ships_in|sprintf:$sviat_blt_any.from:$sviat_blt_any.to:$sviat_blt_days:$sviat_blt_any.date_label|escape}
+    <b>{$lang->sviat__backorder_lead_time__label|escape}</b> · {if $sviat_blt_any.from == $sviat_blt_any.to}{$lang->sviat__backorder_lead_time__ships_in_exact|sprintf:$sviat_blt_any.to:$sviat_blt_days:$sviat_blt_any.date_label|escape}{else}{$lang->sviat__backorder_lead_time__ships_in|sprintf:$sviat_blt_any.from:$sviat_blt_any.to:$sviat_blt_days:$sviat_blt_any.date_label|escape}{/if}
 </div>
 {/if}

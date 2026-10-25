@@ -4,15 +4,26 @@ namespace Modules\Sviat\BackorderLeadTime;
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Settings;
+use Okay\Entities\ProductsEntity;
 use Okay\Modules\Sviat\BackorderLeadTime\Entities\BackorderLeadTimesEntity;
 use Okay\Modules\Sviat\BackorderLeadTime\Extenders\FeedExtender;
 use Okay\Modules\Sviat\BackorderLeadTime\Helpers\BackorderLeadTime;
 use Okay\Modules\Sviat\BackorderLeadTime\Helpers\LeadTimeSettings;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 class FeedExtenderTest extends TestCase
 {
     private int $findCalls = 0;
+
+    private ?array $productFields = null;
+
+    protected function tearDown(): void
+    {
+        if ($this->productFields !== null) {
+            new ReflectionProperty(ProductsEntity::class, 'fields')->setValue(null, $this->productFields);
+        }
+    }
 
     public function testBackorderItemGetsStatusAndDate(): void
     {
@@ -67,17 +78,53 @@ class FeedExtenderTest extends TestCase
         $this->assertSame(1, $this->findCalls);
     }
 
+    public function testDiscontinuedProductUntouched(): void
+    {
+        $this->registerDiscontinuedField();
+        $extender = $this->extender(discontinued: [42]);
+        $extender->warmUpTerms(new \stdClass());
+
+        $this->assertSame($this->outOfStock(), $extender->googleMerchantItem($this->outOfStock(), $this->product(0, 1, 42)));
+        $items = [['tag' => 'item', 'data' => $this->outOfStock()]];
+        $this->assertSame($items, $extender->feedsGoogleItem($items, $this->product(0, 1, 42)));
+
+        $other = $extender->googleMerchantItem($this->outOfStock(), $this->product(0, 1, 43));
+        $this->assertSame('backorder', $other['g:availability']['data']);
+        $this->assertSame(2, $this->findCalls);
+    }
+
+    public function testWithoutDiscontinuedFieldNoProductsQuery(): void
+    {
+        if (in_array('discontinued', ProductsEntity::getFields(), true)) {
+            $this->markTestSkipped('поле discontinued уже зареєстроване в цьому процесі');
+        }
+        $extender = $this->extender(discontinued: [42]);
+        $extender->warmUpTerms(new \stdClass());
+
+        $result = $extender->googleMerchantItem($this->outOfStock(), $this->product(0, 1, 42));
+
+        $this->assertSame('backorder', $result['g:availability']['data']);
+        $this->assertSame(1, $this->findCalls);
+    }
+
+    private function registerDiscontinuedField(): void
+    {
+        $this->productFields = ProductsEntity::getFields();
+        ProductsEntity::addField('discontinued');
+    }
+
     private function outOfStock(): array
     {
         return ['title' => ['data' => 'x'], 'g:availability' => ['data' => 'out of stock']];
     }
 
-    private function product(int|string|null $stock, int $brandId): object
+    private function product(int|string|null $stock, int $brandId, int $productId = 1): object
     {
-        return (object) ['stock' => $stock, 'brand_id' => $brandId];
+        return (object) ['stock' => $stock, 'brand_id' => $brandId, 'product_id' => $productId];
     }
 
-    private function extender(int $preorder = 1): FeedExtender
+    /** @param list<int> $discontinued id товарів, які віддасть ProductsEntity з discontinued = 1 */
+    private function extender(int $preorder = 1, array $discontinued = []): FeedExtender
     {
         $settings = $this->createStub(Settings::class);
         $settings->method('get')->willReturnCallback(fn($name) => match (true) {
@@ -93,8 +140,15 @@ class FeedExtenderTest extends TestCase
             $this->findCalls++;
             return [(object) ['id' => 1, 'brand_id' => 1, 'days_from' => 21, 'days_to' => 28]];
         });
+        $products = $this->createStub(ProductsEntity::class);
+        $products->method('cols')->willReturnSelf();
+        $products->method('noLimit')->willReturnSelf();
+        $products->method('find')->willReturnCallback(function (array $filter) use ($discontinued) {
+            $this->findCalls++;
+            return $filter === ['discontinued' => 1] ? array_map(strval(...), $discontinued) : [];
+        });
         $factory = $this->createStub(EntityFactory::class);
-        $factory->method('get')->willReturn($entity);
+        $factory->method('get')->willReturnCallback(fn($class) => $class === ProductsEntity::class ? $products : $entity);
 
         return new FeedExtender(new BackorderLeadTime($factory, new LeadTimeSettings($settings), $settings));
     }

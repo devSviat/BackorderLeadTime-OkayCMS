@@ -3,15 +3,20 @@
 namespace Okay\Modules\Sviat\BackorderLeadTime\Helpers;
 
 use DateTimeImmutable;
+use InvalidArgumentException;
 use Okay\Core\EntityFactory;
 use Okay\Core\Modules\Extender\ExtenderFacade;
 use Okay\Core\Settings;
+use Okay\Entities\ProductsEntity;
 use Okay\Modules\Sviat\BackorderLeadTime\Entities\BackorderLeadTimesEntity;
 
 class BackorderLeadTime
 {
     /** @var array<int, LeadTerm>|null */
     private ?array $brandTerms = null;
+
+    /** @var array<int, true>|null */
+    private ?array $discontinuedIds = null;
 
     public function __construct(
         private EntityFactory $entityFactory,
@@ -72,11 +77,41 @@ class BackorderLeadTime
         if ($this->brandTerms === null) {
             $this->brandTerms = [];
             foreach ($this->entityFactory->get(BackorderLeadTimesEntity::class)->noLimit()->find() as $row) {
-                $this->brandTerms[(int) $row->brand_id] = new LeadTerm((int) $row->days_from, (int) $row->days_to);
+                try {
+                    $this->brandTerms[(int) $row->brand_id] = new LeadTerm((int) $row->days_from, (int) $row->days_to);
+                } catch (InvalidArgumentException) {
+                    // Зіпсований рядок у БД — бренд бере загальний термін, сторінка не падає.
+                }
             }
         }
 
         return ExtenderFacade::execute(__METHOD__, $this->brandTerms, func_get_args());
+    }
+
+    /**
+     * Товари, зняті з виробництва (поле `discontinued` від Sviat/ProductDiscontinued): вітрина їх не продає,
+     * тож фід лишає їм `out of stock`. Без того модуля поле не зареєстроване і список порожній.
+     * Читається одним запитом і кешується, як brandTerms().
+     *
+     * @return array<int, true> product_id => true
+     */
+    public function discontinuedProductIds(): array
+    {
+        if ($this->discontinuedIds === null) {
+            $this->discontinuedIds = [];
+            // Без перевірки незареєстроване поле фільтр мовчки ігнорує і повертає всі товари.
+            if (in_array('discontinued', ProductsEntity::getFields(), true)) {
+                $ids = $this->entityFactory->get(ProductsEntity::class)
+                    ->cols(['id'])
+                    ->noLimit()
+                    ->find(['discontinued' => 1]);
+                foreach ($ids as $id) {
+                    $this->discontinuedIds[(int) $id] = true;
+                }
+            }
+        }
+
+        return ExtenderFacade::execute(__METHOD__, $this->discontinuedIds, func_get_args());
     }
 
     /**
