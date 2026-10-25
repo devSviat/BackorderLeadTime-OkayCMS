@@ -1,0 +1,24 @@
+.sviat_backorder_lead--card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid rgba(0, 0, 0, .05);
+    border-radius: 10px;
+    background: #e3740b14;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.sviat_backorder_lead__icon {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    color: #b34c08;
+}
+.sviat_backorder_lead__term {
+    font-weight: 600;
+}
+.sviat_backorder_lead__date {
+    color: #6c6c6c;
+}

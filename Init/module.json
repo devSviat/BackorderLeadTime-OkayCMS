@@ -1,6 +1,6 @@
 {
   "Okay": "4.5.3",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "moduleName": "Терміни поставки під замовлення",
   "vendor": {
     "email": "devsviat@proton.me",
@@ -11,6 +11,15 @@
       {
         "file": "product.tpl",
         "changes": [
+          {
+            "find": "fn_not_stock",
+            "prepend": "{capture assign=sviat_blt_badge}",
+            "append": "{/capture}"
+          },
+          {
+            "find": "fn_not_stock",
+            "append": "product_badge.tpl"
+          },
           {
             "like": "details_boxed__buttons|class=\"vs-buybox__buy\"",
             "appendAfter": "product_lead.tpl"
