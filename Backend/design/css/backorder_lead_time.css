@@ -1,0 +1,257 @@
+.sviat_blt {
+    /* Смуга швидкого збереження (.fn_fast_save) інакше накриває кнопку внизу форми. */
+    padding-bottom: 72px;
+}
+
+.sviat_blt [hidden] {
+    display: none !important;
+}
+
+.sviat_blt__hint {
+    margin: 0 0 12px;
+    color: var(--ok-ink-soft);
+    font-weight: 400;
+}
+
+.sviat_blt__default {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.sviat_blt__field {
+    display: block;
+    margin: 0;
+}
+
+.sviat_blt__field .heading_label {
+    display: block;
+}
+
+.sviat_blt__days {
+    width: 128px;
+    flex-wrap: nowrap;
+}
+
+.sviat_blt__days .form-control {
+    min-width: 0;
+    text-align: right;
+}
+
+.sviat_blt__days .form-control::placeholder {
+    color: var(--ok-control-line);
+    opacity: 1;
+}
+
+.sviat_blt__sentence {
+    margin: 0 0 6px;
+    font-weight: 400;
+}
+
+.sviat_blt__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.sviat_blt__search {
+    flex: 0 1 280px;
+    min-width: 200px;
+}
+
+.sviat_blt__filters {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.sviat_blt__filter {
+    padding: 6px 12px;
+    border: 1px solid var(--ok-control-line);
+    border-radius: var(--ok-radius-pill);
+    background: var(--ok-surface);
+    color: var(--ok-ink);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color var(--ok-dur) var(--ok-ease), color var(--ok-dur) var(--ok-ease);
+}
+
+.sviat_blt__filter:hover {
+    background: var(--ok-sunken);
+}
+
+.sviat_blt__filter.is-active {
+    border-color: var(--ok-accent);
+    background: var(--ok-accent);
+    color: var(--ok-ink-inverse);
+}
+
+.sviat_blt__filter_count {
+    margin-left: 4px;
+    font-variant-numeric: tabular-nums;
+    opacity: .8;
+}
+
+.sviat_blt__table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.sviat_blt__table th {
+    position: sticky;
+    /* Під фіксованою шапкою адмінки (header.navbar, 55px). */
+    top: 55px;
+    /* Вище за поля .input-group, які мають власний z-index. */
+    z-index: 5;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--ok-thead-line);
+    background: var(--ok-thead);
+    color: var(--ok-ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.sviat_blt__table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--ok-line);
+    vertical-align: middle;
+}
+
+.sviat_blt__col_brand {
+    width: 220px;
+}
+
+.sviat_blt__col_count,
+.sviat_blt__count {
+    width: 130px;
+    text-align: right !important;
+}
+
+.sviat_blt__col_days {
+    width: 148px;
+}
+
+.sviat_blt__sort {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.sviat_blt__sort::after {
+    content: "";
+    display: inline-block;
+    width: 0;
+    margin-left: 4px;
+}
+
+th[aria-sort="ascending"] > .sviat_blt__sort::after {
+    content: "↑";
+    width: auto;
+}
+
+th[aria-sort="descending"] > .sviat_blt__sort::after {
+    content: "↓";
+    width: auto;
+}
+
+.sviat_blt__brand {
+    font-weight: 600;
+}
+
+.sviat_blt__error {
+    font-weight: 400;
+    font-size: 12px;
+}
+
+.sviat_blt__row.is-error td {
+    background: var(--ok-danger-soft);
+}
+
+.sviat_blt__preview {
+    color: var(--ok-ink-soft);
+}
+
+.sviat_blt__general {
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: var(--ok-radius-pill);
+    background: var(--ok-sunken);
+    border: 1px solid var(--ok-line);
+    color: var(--ok-ink-muted);
+    font-size: 11px;
+}
+
+.sviat_blt__empty {
+    padding: 20px 10px !important;
+    color: var(--ok-ink-muted);
+    text-align: center;
+}
+
+@media (max-width: 767px) {
+    .sviat_blt__search {
+        flex-basis: 100%;
+    }
+
+    .sviat_blt__table thead {
+        display: none;
+    }
+
+    .sviat_blt__table,
+    .sviat_blt__table tbody {
+        display: block;
+    }
+
+    .sviat_blt__row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--ok-line);
+    }
+
+    .sviat_blt__row td {
+        display: block;
+        width: auto;
+        padding: 0;
+        border: 0;
+    }
+
+    .sviat_blt__row td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 2px;
+        color: var(--ok-ink-muted);
+        font-size: 12px;
+    }
+
+    .sviat_blt__count {
+        text-align: right !important;
+        font-weight: 600;
+    }
+
+    .sviat_blt__row td.sviat_blt__count::before {
+        display: inline;
+        margin-right: 6px;
+        font-weight: 400;
+    }
+
+    .sviat_blt__preview {
+        grid-column: 1 / -1;
+    }
+
+    .sviat_blt__days {
+        width: 100%;
+    }
+}

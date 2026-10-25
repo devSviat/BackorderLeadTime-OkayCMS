@@ -60,7 +60,7 @@ class BackorderLeadTime
             $term = $this->termFor($brandId);
             if ($term !== null) {
                 $now ??= new DateTimeImmutable('now');
-                $backorder = new Backorder($term, $now->modify("+{$term->to} days")->setTime(12, 0));
+                $backorder = new Backorder($term, $term->shipDate($now));
             }
         }
 

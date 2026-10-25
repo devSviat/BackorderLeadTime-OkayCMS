@@ -3,9 +3,9 @@
 namespace Okay\Modules\Sviat\BackorderLeadTime\Plugins;
 
 use DateTimeImmutable;
-use Okay\Core\FrontTranslations;
 use Okay\Core\SmartyPlugins\Func;
 use Okay\Modules\Sviat\BackorderLeadTime\Helpers\BackorderLeadTime;
+use Okay\Modules\Sviat\BackorderLeadTime\Helpers\LeadTimeLabels;
 
 /**
  * {sviat_backorder_lead brand_id=… [stock=…] assign=var}: у var — термін і дата відправки або null.
@@ -17,7 +17,7 @@ class BackorderLeadPlugin extends Func
 
     public function __construct(
         private BackorderLeadTime $leadTime,
-        private FrontTranslations $translations,
+        private LeadTimeLabels $labels,
         private ?DateTimeImmutable $now = null,
     ) {
     }
@@ -30,11 +30,10 @@ class BackorderLeadPlugin extends Func
         $lead = null;
         $backorder = $this->leadTime->forItem($brandId, $stock, $this->now);
         if ($backorder !== null) {
-            $month = $this->translations->getTranslation('sviat__backorder_lead_time__month_' . $backorder->shipDate->format('n'));
             $lead = [
                 'from' => $backorder->term->from,
                 'to' => $backorder->term->to,
-                'date_label' => $backorder->shipDate->format('j') . ' ' . $month,
+                'date_label' => $this->labels->dateLabel($backorder->shipDate),
                 'date_iso' => $backorder->shipDate->format('Y-m-d'),
                 'availability_date' => $backorder->availabilityDate(),
             ];
