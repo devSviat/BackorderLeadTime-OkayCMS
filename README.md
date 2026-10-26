@@ -30,10 +30,17 @@
   текст.
 - Стилі картки — у `design/css/backorder_lead.css` модуля; тема може
   перевизначити файл у `design/<тема>/modules/Sviat/BackorderLeadTime/css/`.
-- Мікророзмітка: `OutOfStock` → `BackOrder` для товару під замовлення.
+- Мікророзмітка: `OutOfStock` → `BackOrder` для товару під замовлення, а дата
+  відправки — в `availabilityStarts` (Merchant Center зіставляє з цією
+  властивістю `availability_date`).
 - Фіди Google: `g:availability` = `backorder` і `g:availability_date`
   (`2026-11-22T12:00+0200`) — і в модулі `OkayCMS/GoogleMerchant`, і в пресеті
   Google Merchant модуля `OkayCMS/Feeds`. Модуль, якого немає, просто пропускається.
+- Товари під замовлення не йдуть у рекламу Google: у фіді вони отримують
+  `g:excluded_destination` зі значеннями `Shopping_ads`, `Display_ads` і
+  `Local_inventory_ads`, кожне окремим тегом. У безкоштовних оголошеннях
+  (`Free_listings`) вони лишаються. Перемикач — в адмінці модуля, увімкнено
+  за замовчуванням.
 - Окреме право доступу для менеджерів.
 - Сумісний із модулем `Sviat/ProductDiscontinued`: товари, зняті з виробництва,
   лишаються у фідах `out of stock` (див. «Відомі межі»).
@@ -80,7 +87,9 @@ git clone https://github.com/devSviat/BackorderLeadTime-OkayCMS.git BackorderLea
 3. Задайте **загальний термін** «від» і «до» (1–365 днів, «від» не більше «до»).
 4. За потреби задайте термін для окремих брендів. Порожні поля — бренд
    користується загальним терміном.
-5. Натисніть «Застосувати».
+5. Блок «Реклама Google»: перемикач «Не показувати товари під замовлення в
+   рекламі». Вимкніть, якщо товари під замовлення мають рекламуватися.
+6. Натисніть «Застосувати».
 
 Бренди стоять таблицею за назвою: «Бренд · Під замовлення · Від · До ·
 Покупець побачить». Поля «Від» і «До» — поруч із назвою, з суфіксом «днів».
@@ -147,6 +156,10 @@ git clone https://github.com/devSviat/BackorderLeadTime-OkayCMS.git BackorderLea
   з кількома темами валить перевірку анкерів.
   Google Merchant бере терміни обробки насамперед із налаштувань доставки в
   Merchant Center.
+- **Performance Max.** `excluded_destination` = `Shopping_ads` прибирає товар
+  зі Shopping-реклами і з вибору груп товарів у Google Ads. Google окремо
+  пише, що `Display_ads` не прибирає товар із динамічного ремаркетингу
+  Performance Max.
 - **Зняті з виробництва.** Якщо встановлено `Sviat/ProductDiscontinued`
   (поле `discontinued` на товарі), такі товари модуль у фідах не чіпає: вони
   лишаються `out of stock`, як і на сторінці, де замість кнопки — «знято з

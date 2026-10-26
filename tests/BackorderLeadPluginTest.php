@@ -26,6 +26,7 @@ class BackorderLeadPluginTest extends TestCase
             'date_label' => '22 листопада',
             'date_iso' => '2026-11-22',
             'availability_date' => '2026-11-22T12:00+0200',
+            'availability_starts' => '2026-11-22T12:00:00+02:00',
         ], $assigned);
     }
 

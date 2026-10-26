@@ -59,6 +59,7 @@ class BackorderLeadTimeAdmin extends IndexAdmin
             // Рядок з помилкою лишає попередній термін, а не стирає його.
             $service->saveBrandTerms($terms);
             $settings->setDefault($defaultTerm);
+            $settings->setExcludesFromAds($this->request->post('exclude_from_ads') === '1');
 
             if (!$hasErrors) {
                 $this->postRedirectGet->storeMessageSuccess('saved');
@@ -86,6 +87,7 @@ class BackorderLeadTimeAdmin extends IndexAdmin
         $this->design->assign('lt_brands', $brands);
         $this->design->assign('lt_rows', $rows);
         $this->design->assign('lt_preorder', $service->isPreorderEnabled());
+        $this->design->assign('lt_exclude_ads', $settings->excludesFromAds());
         $this->design->assign('lt_today', $now->format('Y-m-d'));
         $this->design->assign('lt_max_days', LeadTerm::MAX_DAYS);
         $this->design->assign('lt_texts', json_encode($labels->forScript(), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));

@@ -27,3 +27,6 @@ $lang['sviat__backorder_lead_time__filter_all'] = 'All';
 $lang['sviat__backorder_lead_time__filter_own'] = 'With own lead time';
 $lang['sviat__backorder_lead_time__filter_backorders'] = 'With backorder products';
 $lang['sviat__backorder_lead_time__nothing_found'] = 'Nothing found';
+$lang['sviat__backorder_lead_time__ads'] = 'Google ads';
+$lang['sviat__backorder_lead_time__exclude_ads'] = 'Do not show backorder products in ads';
+$lang['sviat__backorder_lead_time__exclude_ads_hint'] = 'Backorder products stay in the feed and in Google free listings, but are excluded from Shopping ads, dynamic remarketing and local inventory ads. Dynamic remarketing in Performance Max is not excluded this way.';

@@ -27,3 +27,6 @@ $lang['sviat__backorder_lead_time__filter_all'] = 'Усі';
 $lang['sviat__backorder_lead_time__filter_own'] = 'З власним терміном';
 $lang['sviat__backorder_lead_time__filter_backorders'] = 'З товарами під замовлення';
 $lang['sviat__backorder_lead_time__nothing_found'] = 'Нічого не знайдено';
+$lang['sviat__backorder_lead_time__ads'] = 'Реклама Google';
+$lang['sviat__backorder_lead_time__exclude_ads'] = 'Не показувати товари під замовлення в рекламі';
+$lang['sviat__backorder_lead_time__exclude_ads_hint'] = 'Товари під замовлення лишаються у фіді й безкоштовних оголошеннях Google, але виключаються зі Shopping-реклами, динамічного ремаркетингу та оголошень про місцеві товари. Динамічний ремаркетинг у Performance Max так не виключається.';

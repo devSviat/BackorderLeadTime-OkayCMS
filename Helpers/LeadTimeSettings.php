@@ -31,4 +31,15 @@ class LeadTimeSettings
         $this->settings->set(self::PREFIX . 'default_from', $term?->from);
         $this->settings->set(self::PREFIX . 'default_to', $term?->to);
     }
+
+    /** Не збережене значення — увімкнено: у рекламі Google лише товари в наявності, під замовлення — тільки у фіді. */
+    public function excludesFromAds(): bool
+    {
+        return !in_array($this->settings->get(self::PREFIX . 'exclude_from_ads'), [0, '0'], true);
+    }
+
+    public function setExcludesFromAds(bool $exclude): void
+    {
+        $this->settings->set(self::PREFIX . 'exclude_from_ads', $exclude ? '1' : '0');
+    }
 }

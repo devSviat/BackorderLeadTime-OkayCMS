@@ -36,6 +36,7 @@ class BackorderLeadPlugin extends Func
                 'date_label' => $this->labels->dateLabel($backorder->shipDate),
                 'date_iso' => $backorder->shipDate->format('Y-m-d'),
                 'availability_date' => $backorder->availabilityDate(),
+                'availability_starts' => $backorder->shipDate->format(DATE_ATOM),
             ];
         }
 

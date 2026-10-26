@@ -67,6 +67,19 @@
     </div>
 
     <div class="boxed">
+        <div class="heading_box">{$btr->sviat__backorder_lead_time__ads|escape}</div>
+        <div class="okay_switch clearfix">
+            <label class="switch_label" for="sviat_blt_exclude_ads">{$btr->sviat__backorder_lead_time__exclude_ads|escape}</label>
+            <label class="switch switch-default">
+                <input class="switch-input" id="sviat_blt_exclude_ads" name="exclude_from_ads" value="1" type="checkbox"{if $lt_exclude_ads} checked{/if}>
+                <span class="switch-label"></span>
+                <span class="switch-handle"></span>
+            </label>
+        </div>
+        <p class="sviat_blt__hint">{$btr->sviat__backorder_lead_time__exclude_ads_hint|escape}</p>
+    </div>
+
+    <div class="boxed">
         <div class="heading_box">{$btr->sviat__backorder_lead_time__brands|escape}</div>
         <p class="sviat_blt__hint">
             {$btr->sviat__backorder_lead_time__brands_hint|escape}

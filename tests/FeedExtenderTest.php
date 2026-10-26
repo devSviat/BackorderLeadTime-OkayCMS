@@ -4,6 +4,7 @@ namespace Modules\Sviat\BackorderLeadTime;
 
 use Okay\Core\EntityFactory;
 use Okay\Core\Settings;
+use Okay\Helpers\XmlFeedHelper;
 use Okay\Entities\ProductsEntity;
 use Okay\Modules\Sviat\BackorderLeadTime\Entities\BackorderLeadTimesEntity;
 use Okay\Modules\Sviat\BackorderLeadTime\Extenders\FeedExtender;
@@ -37,6 +38,44 @@ class FeedExtenderTest extends TestCase
         $this->assertSame('title', array_key_first($result));
     }
 
+    public function testBackorderExcludedFromAdsByDefault(): void
+    {
+        $result = $this->extender()->googleMerchantItem($this->outOfStock(), $this->product(0, 1));
+
+        $this->assertSame(FeedExtender::AD_DESTINATIONS, $this->excludedDestinations($result));
+        $this->assertNotContains('Free_listings', $this->excludedDestinations($result));
+    }
+
+    public function testExclusionTurnedOffKeepsAds(): void
+    {
+        $result = $this->extender(excludeAds: '0')->googleMerchantItem($this->outOfStock(), $this->product(0, 1));
+
+        $this->assertSame('backorder', $result['g:availability']['data']);
+        $this->assertSame([], $this->excludedDestinations($result));
+    }
+
+    public function testExcludedDestinationsCompileToRepeatedTags(): void
+    {
+        $result = $this->extender()->googleMerchantItem($this->outOfStock(), $this->product(0, 1));
+        $helper = new \ReflectionClass(XmlFeedHelper::class)->newInstanceWithoutConstructor();
+
+        $xml = $helper->compileItems($result);
+
+        $this->assertSame(1, substr_count($xml, '<g:excluded_destination>Shopping_ads</g:excluded_destination>'));
+        $this->assertSame(1, substr_count($xml, '<g:excluded_destination>Display_ads</g:excluded_destination>'));
+        $this->assertSame(1, substr_count($xml, '<g:excluded_destination>Local_inventory_ads</g:excluded_destination>'));
+        $this->assertStringNotContainsString('excluded_destination:', $xml);
+    }
+
+    public function testFeedsAdapterItemExcludedFromAds(): void
+    {
+        $items = [['tag' => 'item', 'data' => $this->outOfStock()]];
+
+        $result = $this->extender()->feedsGoogleItem($items, $this->product(0, 1));
+
+        $this->assertSame(FeedExtender::AD_DESTINATIONS, $this->excludedDestinations($result[0]['data']));
+    }
+
     public function testInStockItemUntouched(): void
     {
         $extender = $this->extender();
@@ -44,6 +83,7 @@ class FeedExtenderTest extends TestCase
 
         $this->assertSame($inStock, $extender->googleMerchantItem($inStock, $this->product(3, 1)));
         $this->assertSame($inStock, $extender->googleMerchantItem($inStock, $this->product(null, 1)));
+        $this->assertSame([], $this->excludedDestinations($extender->googleMerchantItem($inStock, $this->product(3, 1))));
     }
 
     public function testPreorderOffUntouched(): void
@@ -107,6 +147,19 @@ class FeedExtenderTest extends TestCase
         $this->assertSame(1, $this->findCalls);
     }
 
+    /** @return list<string> значення всіх g:excluded_destination у порядку появи */
+    private function excludedDestinations(array $data): array
+    {
+        $values = [];
+        foreach ($data as $key => $item) {
+            if (($item['tag'] ?? $key) === 'g:excluded_destination') {
+                $values[] = $item['data'];
+            }
+        }
+
+        return $values;
+    }
+
     private function registerDiscontinuedField(): void
     {
         $this->productFields = ProductsEntity::getFields();
@@ -124,13 +177,14 @@ class FeedExtenderTest extends TestCase
     }
 
     /** @param list<int> $discontinued id товарів, які віддасть ProductsEntity з discontinued = 1 */
-    private function extender(int $preorder = 1, array $discontinued = []): FeedExtender
+    private function extender(int $preorder = 1, array $discontinued = [], ?string $excludeAds = null): FeedExtender
     {
         $settings = $this->createStub(Settings::class);
         $settings->method('get')->willReturnCallback(fn($name) => match (true) {
             $name === 'is_preorder' => $preorder,
             str_ends_with($name, 'default_from') => 7,
             str_ends_with($name, 'default_to') => 14,
+            str_ends_with($name, 'exclude_from_ads') => $excludeAds,
             default => null,
         });
 
@@ -150,6 +204,8 @@ class FeedExtenderTest extends TestCase
         $factory = $this->createStub(EntityFactory::class);
         $factory->method('get')->willReturnCallback(fn($class) => $class === ProductsEntity::class ? $products : $entity);
 
-        return new FeedExtender(new BackorderLeadTime($factory, new LeadTimeSettings($settings), $settings));
+        $leadTimeSettings = new LeadTimeSettings($settings);
+
+        return new FeedExtender(new BackorderLeadTime($factory, $leadTimeSettings, $settings), $leadTimeSettings);
     }
 }
