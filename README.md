@@ -107,7 +107,7 @@ git clone https://github.com/devSviat/BackorderLeadTime-OkayCMS.git BackorderLea
 | що | `okay_shop` | `vibe_shop` |
 | --- | --- | --- |
 | бейдж наявності | текст усередині `fn_not_stock` | текст усередині `fn_not_stock` |
-| наявність у картці каталогу | — (картка без рядка «немає»; у темах на базі `okay_shop` з ним — текст усередині `fn_not_stock`) | рядок `<p class="vs-stock{if …">` цілком, разом з `data-out` |
+| наявність у картці каталогу | — (картка без рядка «немає»; у темах на базі `okay_shop` з ним — вузол `fn_not_stock` цілком) | рядок `<p class="vs-stock{if …">` цілком, разом з `data-out` |
 | картка на сторінці товару | після блоку `details_boxed__buttons` | після блоку кнопок `vs-buybox__buy` |
 | мікророзмітка | `<link itemprop="availability" href="http(s)://schema.org/OutOfStock" />` | те саме |
 | кошик і спливний кошик | усередині `<span class="preorder_label">` | усередині `<div class="vs-stock vs-stock--low">` |
@@ -119,6 +119,9 @@ git clone https://github.com/devSviat/BackorderLeadTime-OkayCMS.git BackorderLea
 У картці каталогу `vibe_shop` рядок наявності перехоплюється цілим: текст «немає»
 стоїть і в мітці, і в атрибуті `data-out`, з якого `vibe.js` відновлює мітку при
 зміні варіанта. Тут це рядок `out_of_stock`, а не `product_out_of_stock`.
+Порядок двох змін для `product_list.tpl` у `module.json` важливий: `appendAfter`
+ставить вставку одразу за вузлом, тож `card_stock.tpl`, оголошений першим, стає
+після `{/capture}` з другої зміни.
 
 У `vibe_shop` картка стоїть під усім рядком кнопок, а не одразу після кнопки
 «Передзамовлення»: рядок — flex-контейнер, і блок усередині нього став би поруч
