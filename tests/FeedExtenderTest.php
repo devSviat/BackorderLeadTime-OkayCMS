@@ -46,6 +46,16 @@ class FeedExtenderTest extends TestCase
         $this->assertNotContains('Free_listings', $this->excludedDestinations($result));
     }
 
+    public function testDisabledBrandStaysOutOfStock(): void
+    {
+        $extender = $this->extender(disabledBrands: [1]);
+
+        $this->assertSame($this->outOfStock(), $extender->googleMerchantItem($this->outOfStock(), $this->product(0, 1)));
+        $items = [['tag' => 'item', 'data' => $this->outOfStock()]];
+        $this->assertSame($items, $extender->feedsGoogleItem($items, $this->product(0, 1)));
+        $this->assertSame('backorder', $extender->googleMerchantItem($this->outOfStock(), $this->product(0, 2))['g:availability']['data']);
+    }
+
     public function testExclusionTurnedOffKeepsAds(): void
     {
         $result = $this->extender(excludeAds: '0')->googleMerchantItem($this->outOfStock(), $this->product(0, 1));
@@ -177,7 +187,7 @@ class FeedExtenderTest extends TestCase
     }
 
     /** @param list<int> $discontinued id товарів, які віддасть ProductsEntity з discontinued = 1 */
-    private function extender(int $preorder = 1, array $discontinued = [], ?string $excludeAds = null): FeedExtender
+    private function extender(int $preorder = 1, array $discontinued = [], ?string $excludeAds = null, array $disabledBrands = []): FeedExtender
     {
         $settings = $this->createStub(Settings::class);
         $settings->method('get')->willReturnCallback(fn($name) => match (true) {
@@ -185,6 +195,7 @@ class FeedExtenderTest extends TestCase
             str_ends_with($name, 'default_from') => 7,
             str_ends_with($name, 'default_to') => 14,
             str_ends_with($name, 'exclude_from_ads') => $excludeAds,
+            str_ends_with($name, 'disabled_brands') => $disabledBrands,
             default => null,
         });
 

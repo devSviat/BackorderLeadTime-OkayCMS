@@ -140,6 +140,20 @@
     width: 148px;
 }
 
+.sviat_blt__col_on {
+    width: 96px;
+}
+
+.sviat_blt__on .switch {
+    margin: 0;
+}
+
+/* Лише приглушуємо: disabled-поля не потрапляють у POST, і збереження стерло б термін бренду. */
+.sviat_blt__row.is-off .sviat_blt__days,
+.sviat_blt__row.is-off .sviat_blt__preview {
+    opacity: .45;
+}
+
 .sviat_blt__sort {
     padding: 0;
     border: 0;

@@ -30,3 +30,7 @@ $lang['sviat__backorder_lead_time__nothing_found'] = 'Nothing found';
 $lang['sviat__backorder_lead_time__ads'] = 'Google ads';
 $lang['sviat__backorder_lead_time__exclude_ads'] = 'Do not show backorder products in ads';
 $lang['sviat__backorder_lead_time__exclude_ads_hint'] = 'Backorder products stay in the feed and in Google free listings, but are excluded from Shopping ads, dynamic remarketing and local inventory ads. Dynamic remarketing in Performance Max is not excluded this way.';
+$lang['sviat__backorder_lead_time__filter_off'] = 'Turned off';
+$lang['sviat__backorder_lead_time__col_enabled'] = 'Active';
+$lang['sviat__backorder_lead_time__preview_off'] = 'Out of stock';
+$lang['sviat__backorder_lead_time__enabled_hint'] = 'Turned-off brand: its products with stock 0 are shown and sent to the feed as out of stock, without lead times.';

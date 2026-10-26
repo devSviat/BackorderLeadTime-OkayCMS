@@ -25,17 +25,25 @@ class BackorderLeadTime
     ) {
     }
 
-    /** Термін бренду, інакше загальний; null — загального немає, модуль нічого не змінює. */
+    /** Термін бренду, інакше загальний; null — загального немає або бренд вимкнено, модуль нічого не змінює. */
     public function termFor(?int $brandId): ?LeadTerm
     {
         $default = $this->leadTimeSettings->getDefault();
-        if ($default === null) {
+        if ($default === null || !$this->isBrandEnabled($brandId)) {
             return ExtenderFacade::execute(__METHOD__, null, func_get_args());
         }
 
         $term = $this->brandTerms()[(int) $brandId] ?? $default;
 
         return ExtenderFacade::execute(__METHOD__, $term, func_get_args());
+    }
+
+    /** Товар без бренду вимкнути нема як — для нього діє загальний термін. */
+    public function isBrandEnabled(?int $brandId): bool
+    {
+        $enabled = $brandId === null || !isset($this->leadTimeSettings->disabledBrandIds()[$brandId]);
+
+        return ExtenderFacade::execute(__METHOD__, $enabled, func_get_args());
     }
 
     public function isPreorderEnabled(): bool

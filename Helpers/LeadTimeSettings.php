@@ -32,6 +32,30 @@ class LeadTimeSettings
         $this->settings->set(self::PREFIX . 'default_to', $term?->to);
     }
 
+    /**
+     * Бренди, чиї товари із залишком 0 модуль не чіпає: вітрина, розмітка й фіди лишаються як у теми.
+     *
+     * @return array<int, true> brand_id => true
+     */
+    public function disabledBrandIds(): array
+    {
+        $stored = $this->settings->get(self::PREFIX . 'disabled_brands');
+        $ids = [];
+        foreach (is_array($stored) ? $stored : [] as $id) {
+            if (is_numeric($id) && (int) $id > 0) {
+                $ids[(int) $id] = true;
+            }
+        }
+
+        return $ids;
+    }
+
+    /** @param list<int> $brandIds */
+    public function setDisabledBrandIds(array $brandIds): void
+    {
+        $this->settings->set(self::PREFIX . 'disabled_brands', array_values(array_unique(array_map(intval(...), $brandIds))));
+    }
+
     /** Не збережене значення — увімкнено: у рекламі Google лише товари в наявності, під замовлення — тільки у фіді. */
     public function excludesFromAds(): bool
     {

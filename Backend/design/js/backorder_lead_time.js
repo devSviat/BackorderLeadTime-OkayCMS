@@ -71,12 +71,15 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateRow(row, def, final) {
         var own = parse(row);
         var term = own === null ? def : own;
+        var enabled = row.querySelector('.fn_sviat_blt_enabled').checked;
         markError(row, own === false, final);
-        row.querySelector('.fn_sviat_blt_preview').textContent = term
-            ? termText(term) + ' · ' + fmt(form.dataset.by, [dateLabel(term)])
-            : '—';
-        row.querySelector('.fn_sviat_blt_general').hidden = !(own === null && def);
+        row.classList.toggle('is-off', !enabled);
+        row.querySelector('.fn_sviat_blt_preview').textContent = !enabled
+            ? form.dataset.off
+            : term ? termText(term) + ' · ' + fmt(form.dataset.by, [dateLabel(term)]) : '—';
+        row.querySelector('.fn_sviat_blt_general').hidden = !(enabled && own === null && def);
         row.dataset.own = own === null ? '' : '1';
+        row.dataset.off = enabled ? '' : '1';
     }
 
     function updateAll(final) {
@@ -94,6 +97,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function countOwn() {
         form.querySelector('.fn_sviat_blt_count_own').textContent =
             rows.filter(function (row) { return row.dataset.own; }).length;
+        form.querySelector('.fn_sviat_blt_count_off').textContent =
+            rows.filter(function (row) { return row.dataset.off; }).length;
     }
 
     /* Рядки лише ховаються: збереження — повна заміна, тож відфільтровані теж мають піти у POST. */
@@ -103,7 +108,8 @@ document.addEventListener('DOMContentLoaded', function () {
         rows.forEach(function (row) {
             var visible = (!query || row.querySelector('.fn_sviat_blt_name').textContent.toLowerCase().indexOf(query) !== -1)
                 && (filter !== 'own' || row.dataset.own)
-                && (filter !== 'backorders' || row.dataset.backorders > 0);
+                && (filter !== 'backorders' || row.dataset.backorders > 0)
+                && (filter !== 'off' || row.dataset.off);
             row.hidden = !visible;
             shown += visible ? 1 : 0;
         });
@@ -143,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             updateAll(final);
         }
-        if (filter === 'own' && final) applyFilter();
+        if ((filter === 'own' || filter === 'off') && final) applyFilter();
     }
 
     form.addEventListener('input', onEdit);
@@ -173,5 +179,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     rows.forEach(function (row) {
         row.dataset.own = parse(row) === null ? '' : '1';
+        row.dataset.off = row.querySelector('.fn_sviat_blt_enabled').checked ? '' : '1';
     });
 });

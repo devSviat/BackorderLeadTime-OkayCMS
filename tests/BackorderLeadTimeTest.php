@@ -31,6 +31,36 @@ class BackorderLeadTimeTest extends TestCase
         $this->assertEquals(new LeadTerm(7, 14), $service->termFor(null));
     }
 
+    public function testDisabledBrandIsNotBackorder(): void
+    {
+        $service = $this->service(['default_from' => 7, 'default_to' => 14, 'disabled_brands' => [5, '9']], [5 => [21, 28]]);
+
+        $this->assertNull($service->termFor(5));
+        $this->assertNull($service->forItem(5, 0));
+        $this->assertNull($service->forItem(9, 0));
+        $this->assertFalse($service->isBrandEnabled(5));
+        $this->assertEquals(new LeadTerm(7, 14), $service->termFor(3));
+        $this->assertEquals(new LeadTerm(7, 14), $service->termFor(null));
+    }
+
+    public function testBrokenDisabledListMeansAllEnabled(): void
+    {
+        foreach (['', 'x', 'a:1:{', [0, -3, 'abc']] as $stored) {
+            $service = $this->service(['default_from' => 7, 'default_to' => 14, 'disabled_brands' => $stored], []);
+
+            $this->assertEquals(new LeadTerm(7, 14), $service->termFor(5), var_export($stored, true));
+        }
+    }
+
+    public function testBusinessDaysSkipWeekends(): void
+    {
+        $term = new LeadTerm(14, 21);
+
+        $this->assertSame(['from' => 10, 'to' => 15], $term->businessDays($this->kyiv('2026-10-26 09:00')));
+        $this->assertSame(['from' => 1, 'to' => 1], new LeadTerm(1, 1)->businessDays($this->kyiv('2026-10-31 09:00')));
+        $this->assertSame(['from' => 1, 'to' => 1], new LeadTerm(1, 2)->businessDays($this->kyiv('2026-10-30 18:00')));
+    }
+
     public function testNoDefaultMeansNothing(): void
     {
         $service = $this->service([], [5 => [21, 28]]);
@@ -111,7 +141,7 @@ class BackorderLeadTimeTest extends TestCase
     }
 
     /**
-     * @param array<string, int> $moduleSettings ключі без префікса
+     * @param array<string, mixed> $moduleSettings ключі без префікса
      * @param array<int, array{int, int}> $brandRows brand_id => [від, до]
      */
     private function service(array $moduleSettings, array $brandRows, int $preorder = 1): BackorderLeadTime
