@@ -1,6 +1,6 @@
 {
   "Okay": "4.5.3",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "moduleName": "Терміни поставки під замовлення",
   "vendor": {
     "email": "devsviat@proton.me",
@@ -27,6 +27,25 @@
           {
             "like": "<link itemprop=\"availability\" href=\"https?://schema.org/OutOfStock\" />",
             "replace": "schema_availability.tpl"
+          }
+        ]
+      },
+      {
+        "file": "product_list.tpl",
+        "changes": [
+          {
+            "find": "fn_not_stock",
+            "prepend": "{capture assign=sviat_blt_badge}",
+            "append": "{/capture}"
+          },
+          {
+            "find": "fn_not_stock",
+            "append": "product_badge.tpl"
+          },
+          {
+            "like": "<p class=\"vs-stock\\{if",
+            "appendBefore": "{capture assign=sviat_blt_card}",
+            "appendAfter": "card_stock.tpl"
           }
         ]
       },
