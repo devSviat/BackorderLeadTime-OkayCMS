@@ -46,6 +46,7 @@ return [
         'class' => FeedExtender::class,
         'arguments' => [
             new SR(BackorderLeadTime::class),
+            new SR(LeadTimeSettings::class),
         ],
     ],
 ];

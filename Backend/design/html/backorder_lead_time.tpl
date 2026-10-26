@@ -37,7 +37,8 @@
       data-texts="{$lt_texts|escape}"
       data-today="{$lt_today|escape}"
       data-max="{$lt_max_days|escape}"
-      data-by="{$btr->sviat__backorder_lead_time__preview_by|escape}">
+      data-by="{$btr->sviat__backorder_lead_time__preview_by|escape}"
+      data-off="{$btr->sviat__backorder_lead_time__preview_off|escape}">
     <input type="hidden" name="session_id" value="{$smarty.session.id|escape}">
 
     <div class="boxed">
@@ -67,17 +68,31 @@
     </div>
 
     <div class="boxed">
+        <div class="heading_box">{$btr->sviat__backorder_lead_time__ads|escape}</div>
+        <div class="okay_switch clearfix">
+            <label class="switch_label" for="sviat_blt_exclude_ads">{$btr->sviat__backorder_lead_time__exclude_ads|escape}</label>
+            <label class="switch switch-default">
+                <input class="switch-input" id="sviat_blt_exclude_ads" name="exclude_from_ads" value="1" type="checkbox"{if $lt_exclude_ads} checked{/if}>
+                <span class="switch-label"></span>
+                <span class="switch-handle"></span>
+            </label>
+        </div>
+        <p class="sviat_blt__hint">{$btr->sviat__backorder_lead_time__exclude_ads_hint|escape}</p>
+    </div>
+
+    <div class="boxed">
         <div class="heading_box">{$btr->sviat__backorder_lead_time__brands|escape}</div>
         <p class="sviat_blt__hint">
             {$btr->sviat__backorder_lead_time__brands_hint|escape}
+            {$btr->sviat__backorder_lead_time__enabled_hint|escape}
             {$btr->sviat__backorder_lead_time__backorders_hint|escape}
         </p>
         {if !$lt_preorder}
             <p class="sviat_blt__hint text_attention">{$btr->sviat__backorder_lead_time__preorder_off|escape}</p>
         {/if}
 
-        {$lt_count_own = 0}{$lt_count_backorders = 0}
-        {foreach $lt_rows as $lt_r}{if $lt_r.own}{$lt_count_own = $lt_count_own + 1}{/if}{if $lt_r.backorders > 0}{$lt_count_backorders = $lt_count_backorders + 1}{/if}{/foreach}
+        {$lt_count_own = 0}{$lt_count_backorders = 0}{$lt_count_off = 0}
+        {foreach $lt_rows as $lt_r}{if $lt_r.own}{$lt_count_own = $lt_count_own + 1}{/if}{if $lt_r.backorders > 0}{$lt_count_backorders = $lt_count_backorders + 1}{/if}{if !$lt_r.enabled}{$lt_count_off = $lt_count_off + 1}{/if}{/foreach}
         <div class="sviat_blt__toolbar">
             <input class="form-control sviat_blt__search fn_sviat_blt_search" type="search" autocomplete="off"
                    placeholder="{$btr->sviat__backorder_lead_time__search|escape}"
@@ -92,6 +107,9 @@
                 <button type="button" class="sviat_blt__filter fn_sviat_blt_filter" data-filter="backorders" aria-pressed="false">
                     {$btr->sviat__backorder_lead_time__filter_backorders|escape} <span class="sviat_blt__filter_count">{$lt_count_backorders}</span>
                 </button>
+                <button type="button" class="sviat_blt__filter fn_sviat_blt_filter" data-filter="off" aria-pressed="false">
+                    {$btr->sviat__backorder_lead_time__filter_off|escape} <span class="sviat_blt__filter_count fn_sviat_blt_count_off">{$lt_count_off}</span>
+                </button>
             </div>
         </div>
 
@@ -104,6 +122,7 @@
                     <th class="sviat_blt__col_count">
                         <button type="button" class="sviat_blt__sort fn_sviat_blt_sort" data-sort="backorders">{$btr->sviat__backorder_lead_time__col_backorders|escape}</button>
                     </th>
+                    <th class="sviat_blt__col_on">{$btr->sviat__backorder_lead_time__col_enabled|escape}</th>
                     <th class="sviat_blt__col_days">{$btr->sviat__backorder_lead_time__col_from|escape}</th>
                     <th class="sviat_blt__col_days">{$btr->sviat__backorder_lead_time__col_to|escape}</th>
                     <th>{$btr->sviat__backorder_lead_time__col_preview|escape}</th>
@@ -112,12 +131,20 @@
             <tbody>
                 {foreach $lt_brands as $brand}
                     {$row = $lt_rows[$brand->id]}
-                    <tr class="sviat_blt__row fn_sviat_blt_row{if $row.error} is-error{/if}" data-backorders="{$row.backorders|escape}" data-index="{$brand@index}">
+                    <tr class="sviat_blt__row fn_sviat_blt_row{if $row.error} is-error{/if}{if !$row.enabled} is-off{/if}" data-backorders="{$row.backorders|escape}" data-index="{$brand@index}">
                         <td class="sviat_blt__brand">
                             <span class="fn_sviat_blt_name">{$brand->name|escape}</span>
                             {if $row.error}<div class="text-danger sviat_blt__error">{$btr->sviat__backorder_lead_time__row_error|escape}</div>{/if}
                         </td>
                         <td class="sviat_blt__count" data-label="{$btr->sviat__backorder_lead_time__col_backorders|escape}">{$row.backorders|escape}</td>
+                        <td class="sviat_blt__on" data-label="{$btr->sviat__backorder_lead_time__col_enabled|escape}">
+                            <label class="switch switch-default">
+                                <input class="switch-input fn_sviat_blt_enabled" type="checkbox" name="brands[{$brand->id|escape}][enabled]" value="1"{if $row.enabled} checked{/if}
+                                       aria-label="{$brand->name|escape}: {$btr->sviat__backorder_lead_time__col_enabled|escape}">
+                                <span class="switch-label"></span>
+                                <span class="switch-handle"></span>
+                            </label>
+                        </td>
                         <td data-label="{$btr->sviat__backorder_lead_time__col_from|escape}">
                             <div class="input-group sviat_blt__days">
                                 <input class="form-control fn_sviat_blt_from{if $row.error} error{/if}" type="number" min="1" max="{$lt_max_days|escape}" inputmode="numeric"
@@ -135,13 +162,13 @@
                             </div>
                         </td>
                         <td class="sviat_blt__preview" aria-live="polite">
-                            <span class="fn_sviat_blt_preview">{if $row.preview}{$row.preview.term|escape} · {$btr->sviat__backorder_lead_time__preview_by|sprintf:$row.preview.date|escape}{else}—{/if}</span>
-                            <span class="sviat_blt__general fn_sviat_blt_general"{if $row.own || !$row.preview} hidden{/if}>{$btr->sviat__backorder_lead_time__general_mark|escape}</span>
+                            <span class="fn_sviat_blt_preview">{if !$row.enabled}{$btr->sviat__backorder_lead_time__preview_off|escape}{elseif $row.preview}{$row.preview.term|escape} · {$btr->sviat__backorder_lead_time__preview_by|sprintf:$row.preview.date|escape}{else}—{/if}</span>
+                            <span class="sviat_blt__general fn_sviat_blt_general"{if $row.own || !$row.preview || !$row.enabled} hidden{/if}>{$btr->sviat__backorder_lead_time__general_mark|escape}</span>
                         </td>
                     </tr>
                 {/foreach}
                 <tr class="fn_sviat_blt_empty" hidden>
-                    <td colspan="5" class="sviat_blt__empty">{$btr->sviat__backorder_lead_time__nothing_found|escape}</td>
+                    <td colspan="6" class="sviat_blt__empty">{$btr->sviat__backorder_lead_time__nothing_found|escape}</td>
                 </tr>
             </tbody>
         </table>

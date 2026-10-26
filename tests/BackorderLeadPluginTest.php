@@ -26,6 +26,9 @@ class BackorderLeadPluginTest extends TestCase
             'date_label' => '22 листопада',
             'date_iso' => '2026-11-22',
             'availability_date' => '2026-11-22T12:00+0200',
+            'availability_starts' => '2026-11-22T12:00:00+02:00',
+            'handling_from' => 15,
+            'handling_to' => 20,
         ], $assigned);
     }
 
@@ -40,6 +43,15 @@ class BackorderLeadPluginTest extends TestCase
         $this->assertNull($this->assigned(['default_from' => 7, 'default_to' => 14], ['brand_id' => 5, 'stock' => 3]));
     }
 
+    public function testAssignsNullForDisabledBrand(): void
+    {
+        $settings = ['default_from' => 7, 'default_to' => 14, 'disabled_brands' => [5]];
+
+        $this->assertNull($this->assigned($settings, ['brand_id' => 5, 'stock' => 0]));
+        $this->assertNull($this->assigned($settings, ['brand_id' => 5]));
+        $this->assertSame(7, $this->assigned($settings, ['brand_id' => 6, 'stock' => 0])['from']);
+    }
+
     public function testAssignsNullWithoutDefault(): void
     {
         $this->assertNull($this->assigned([], ['brand_id' => 5, 'stock' => 0]));
@@ -47,7 +59,7 @@ class BackorderLeadPluginTest extends TestCase
     }
 
     /**
-     * @param array<string, int> $moduleSettings ключі без префікса
+     * @param array<string, mixed> $moduleSettings ключі без префікса
      * @param array<string, mixed> $params
      */
     private function assigned(array $moduleSettings, array $params, int $preorder = 1): mixed

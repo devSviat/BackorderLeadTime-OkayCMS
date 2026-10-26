@@ -22,6 +22,29 @@ final readonly class LeadTerm
         return $now->modify("+{$this->to} days")->setTime(12, 0);
     }
 
+    /**
+     * Термін у робочих днях пн–пт — одиниці schema.org handlingTime, коли тема оголошує businessDays пн–пт.
+     * Рахуються дні після $now до now + from / now + to; менше одного не буває — у день замовлення товар не їде.
+     *
+     * @return array{from: int, to: int}
+     */
+    public function businessDays(DateTimeImmutable $now): array
+    {
+        return ['from' => self::weekdaysWithin($now, $this->from), 'to' => self::weekdaysWithin($now, $this->to)];
+    }
+
+    private static function weekdaysWithin(DateTimeImmutable $now, int $days): int
+    {
+        $count = 0;
+        for ($i = 1; $i <= $days; $i++) {
+            if ((int) $now->modify("+{$i} days")->format('N') <= 5) {
+                $count++;
+            }
+        }
+
+        return max(1, $count);
+    }
+
     /** Обидва порожні — терміну немає (null); одне порожнє чи нечислове — помилка. */
     public static function parse(string $from, string $to): ?self
     {

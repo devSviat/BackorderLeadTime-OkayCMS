@@ -4,11 +4,20 @@ namespace Okay\Modules\Sviat\BackorderLeadTime\Extenders;
 
 use Okay\Core\Modules\Extender\ExtensionInterface;
 use Okay\Modules\Sviat\BackorderLeadTime\Helpers\BackorderLeadTime;
+use Okay\Modules\Sviat\BackorderLeadTime\Helpers\LeadTimeSettings;
 
 class FeedExtender implements ExtensionInterface
 {
-    public function __construct(private BackorderLeadTime $backorderLeadTime)
-    {
+    /**
+     * Рекламні напрями Merchant Center; Free_listings свідомо не тут — товар лишається в безкоштовних оголошеннях.
+     * Display_ads не прибирає динамічний ремаркетинг Performance Max — так задокументовано в Google.
+     */
+    public const array AD_DESTINATIONS = ['Shopping_ads', 'Display_ads', 'Local_inventory_ads'];
+
+    public function __construct(
+        private BackorderLeadTime $backorderLeadTime,
+        private LeadTimeSettings $leadTimeSettings,
+    ) {
     }
 
     /** Фіди читають рядки небуферизованим запитом: терміни й знятих з виробництва вантажимо до циклу, не посеред нього. */
@@ -47,6 +56,19 @@ class FeedExtender implements ExtensionInterface
         if ($backorder !== null) {
             $data['g:availability']['data'] = 'backorder';
             $data['g:availability_date']['data'] = $backorder->availabilityDate();
+            if ($this->leadTimeSettings->excludesFromAds()) {
+                $data = $this->excludeFromAds($data);
+            }
+        }
+
+        return $data;
+    }
+
+    /** Атрибут повторюваний: кожен напрям — окремий тег, ключ лише тримає їх різними в масиві. */
+    private function excludeFromAds(array $data): array
+    {
+        foreach (self::AD_DESTINATIONS as $destination) {
+            $data["g:excluded_destination:{$destination}"] = ['tag' => 'g:excluded_destination', 'data' => $destination];
         }
 
         return $data;

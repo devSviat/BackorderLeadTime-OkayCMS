@@ -28,14 +28,19 @@ class BackorderLeadPlugin extends Func
         $stock = array_key_exists('stock', $params) ? $params['stock'] : 0;
 
         $lead = null;
-        $backorder = $this->leadTime->forItem($brandId, $stock, $this->now);
+        $now = $this->now ?? new DateTimeImmutable('now');
+        $backorder = $this->leadTime->forItem($brandId, $stock, $now);
         if ($backorder !== null) {
+            $handling = $backorder->term->businessDays($now);
             $lead = [
                 'from' => $backorder->term->from,
                 'to' => $backorder->term->to,
                 'date_label' => $this->labels->dateLabel($backorder->shipDate),
                 'date_iso' => $backorder->shipDate->format('Y-m-d'),
                 'availability_date' => $backorder->availabilityDate(),
+                'availability_starts' => $backorder->shipDate->format(DATE_ATOM),
+                'handling_from' => $handling['from'],
+                'handling_to' => $handling['to'],
             ];
         }
 

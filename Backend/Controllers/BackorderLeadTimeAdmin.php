@@ -27,12 +27,15 @@ class BackorderLeadTimeAdmin extends IndexAdmin
         usort($brands, fn($a, $b) => strnatcasecmp(mb_strtolower((string) $a->name), mb_strtolower((string) $b->name)));
         $saved = $service->brandTerms();
         $default = $settings->getDefault();
+        $disabled = $settings->disabledBrandIds();
 
         $defaultRow = ['from' => $default?->from, 'to' => $default?->to, 'error' => false];
         $rows = [];
+        $enabled = [];
         foreach ($brands as $brand) {
             $term = $saved[(int) $brand->id] ?? null;
             $rows[(int) $brand->id] = ['from' => $term?->from, 'to' => $term?->to, 'error' => false];
+            $enabled[(int) $brand->id] = !isset($disabled[(int) $brand->id]);
         }
 
         if ($this->request->method('post')) {
@@ -54,11 +57,15 @@ class BackorderLeadTimeAdmin extends IndexAdmin
                     $saved[$brandId] ?? null,
                 );
                 $hasErrors = $hasErrors || $rows[$brandId]['error'];
+                $enabled[$brandId] = ($input['enabled'] ?? '') === '1';
             }
 
             // Рядок з помилкою лишає попередній термін, а не стирає його.
             $service->saveBrandTerms($terms);
             $settings->setDefault($defaultTerm);
+            // Бренди, яких немає в таблиці (видалені), випадають зі списку разом з POST.
+            $settings->setDisabledBrandIds(array_keys(array_filter($enabled, fn(bool $on) => !$on)));
+            $settings->setExcludesFromAds($this->request->post('exclude_from_ads') === '1');
 
             if (!$hasErrors) {
                 $this->postRedirectGet->storeMessageSuccess('saved');
@@ -76,8 +83,9 @@ class BackorderLeadTimeAdmin extends IndexAdmin
         foreach ($rows as $brandId => $row) {
             $own = (string) $row['from'] !== '' || (string) $row['to'] !== '';
             $rows[$brandId]['own'] = $own;
+            $rows[$brandId]['enabled'] = $enabled[$brandId];
             $rows[$brandId]['backorders'] = $backorders[$brandId] ?? 0;
-            $rows[$brandId]['preview'] = $row['error']
+            $rows[$brandId]['preview'] = $row['error'] || !$enabled[$brandId]
                 ? null
                 : $this->preview($labels, $own ? $this->termOf($row) : $effectiveDefault, $now);
         }
@@ -86,6 +94,7 @@ class BackorderLeadTimeAdmin extends IndexAdmin
         $this->design->assign('lt_brands', $brands);
         $this->design->assign('lt_rows', $rows);
         $this->design->assign('lt_preorder', $service->isPreorderEnabled());
+        $this->design->assign('lt_exclude_ads', $settings->excludesFromAds());
         $this->design->assign('lt_today', $now->format('Y-m-d'));
         $this->design->assign('lt_max_days', LeadTerm::MAX_DAYS);
         $this->design->assign('lt_texts', json_encode($labels->forScript(), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
