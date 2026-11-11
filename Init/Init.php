@@ -2,6 +2,7 @@
 
 namespace Okay\Modules\Sviat\BackorderLeadTime\Init;
 
+use Okay\Modules\Sviat\MerchantApi\Services\CatalogItemBuilder;
 use Okay\Core\Modules\AbstractInit;
 use Okay\Core\Modules\EntityField;
 use Okay\Modules\OkayCMS\Feeds\Core\Presets\Adapters\GoogleMerchantAdapter;
@@ -47,6 +48,18 @@ class Init extends AbstractInit
             );
             $this->registerChainExtension(
                 ['class' => GoogleMerchantHelper::class, 'method' => 'getItem'],
+                ['class' => FeedExtender::class, 'method' => 'googleMerchantItem']
+            );
+        }
+
+        // Sviat/MerchantApi від 2.0 збирає записи сам; без нього підключення просто немає.
+        if (class_exists(CatalogItemBuilder::class)) {
+            $this->registerChainExtension(
+                ['class' => CatalogItemBuilder::class, 'method' => 'getQuery'],
+                ['class' => FeedExtender::class, 'method' => 'warmUpTerms']
+            );
+            $this->registerChainExtension(
+                ['class' => CatalogItemBuilder::class, 'method' => 'getItem'],
                 ['class' => FeedExtender::class, 'method' => 'googleMerchantItem']
             );
         }
